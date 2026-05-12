@@ -5,8 +5,7 @@
   "description": "Get Reddit posts matched to your current mood.",
   "permissions": ["activeTab"],
   "action": {
-    "default_popup": "popup.html",
-    "default_icon": "icon.png"
+    "default_popup": "popup.html"
   },
   "host_permissions": [
     "http://localhost:5000/*"
