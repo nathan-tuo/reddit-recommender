@@ -1,5 +1,5 @@
 import requests
-
+ 
 HEADERS = {"User-Agent": "mood-recommender/0.1"}
 
 def fetch_posts(subreddit_name="all", limit=100, sort="hot"):
