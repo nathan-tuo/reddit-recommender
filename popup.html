@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Reddit Mood Recommender</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      width: 380px;
+      min-height: 200px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #0d1117;
+      color: #e6edf3;
+    }
+
+    header {
+      padding: 16px;
+      background: #161b22;
+      border-bottom: 1px solid #30363d;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    header h1 {
+      font-size: 15px;
+      font-weight: 600;
+      color: #ff4500;
+    }
+
+    .controls {
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background: #161b22;
+      border-bottom: 1px solid #30363d;
+    }
+
+    .row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    label {
+      font-size: 12px;
+      color: #8b949e;
+      width: 70px;
+      flex-shrink: 0;
+    }
+
+    select, input {
+      flex: 1;
+      background: #0d1117;
+      border: 1px solid #30363d;
+      color: #e6edf3;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 13px;
+      outline: none;
+    }
+
+    select:focus, input:focus {
+      border-color: #ff4500;
+    }
+
+    button#fetchBtn {
+      width: 100%;
+      padding: 10px;
+      background: #ff4500;
+      color: white;
+      font-weight: 600;
+      font-size: 14px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    button#fetchBtn:hover { background: #e03d00; }
+    button#fetchBtn:disabled { background: #555; cursor: default; }
+
+    #status {
+      text-align: center;
+      font-size: 12px;
+      color: #8b949e;
+      padding: 10px;
+    }
+
+    #results {
+      max-height: 420px;
+      overflow-y: auto;
+    }
+
+    .post-card {
+      display: block;
+      padding: 12px 16px;
+      border-bottom: 1px solid #21262d;
+      text-decoration: none;
+      color: inherit;
+      transition: background 0.15s;
+    }
+
+    .post-card:hover { background: #161b22; }
+
+    .post-meta {
+      font-size: 11px;
+      color: #8b949e;
+      margin-bottom: 4px;
+      display: flex;
+      gap: 8px;
+    }
+
+    .post-title {
+      font-size: 13px;
+      line-height: 1.4;
+      color: #e6edf3;
+    }
+
+    .mood-badge {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 10px;
+      background: #ff450022;
+      color: #ff4500;
+      font-weight: 600;
+    }
+
+    .post-stats {
+      margin-top: 5px;
+      font-size: 11px;
+      color: #6e7681;
+      display: flex;
+      gap: 10px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <span>🔥</span>
+    <h1>Reddit Mood Recommender</h1>
+  </header>
+
+  <div class="controls">
+    <div class="row">
+      <label for="moodSelect">Mood</label>
+      <select id="moodSelect">
+        <option value="angry">😤 Angry</option>
+        <option value="sad">😢 Sad</option>
+        <option value="happy" selected>😊 Happy</option>
+        <option value="outraged">🤬 Outraged</option>
+        <option value="amused">😂 Amused</option>
+      </select>
+    </div>
+    <div class="row">
+      <label for="subredditInput">Subreddit</label>
+      <input id="subredditInput" type="text" placeholder="all" value="all" />
+    </div>
+    <div class="row">
+      <label for="sortSelect">Sort by</label>
+      <select id="sortSelect">
+        <option value="hot" selected>Hot</option>
+        <option value="new">New</option>
+        <option value="top">Top</option>
+        <option value="rising">Rising</option>
+      </select>
+    </div>
+    <button id="fetchBtn">Find Posts</button>
+  </div>
+
+  <div id="status"></div>
+  <div id="results"></div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

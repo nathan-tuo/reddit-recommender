@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "Reddit Mood Recommender",
+  "version": "0.1.0",
+  "description": "Get Reddit posts matched to your current mood.",
+  "permissions": ["activeTab"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": "icon.png"
+  },
+  "host_permissions": [
+    "http://localhost:5000/*"
+  ]
+}
