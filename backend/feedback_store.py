@@ -33,12 +33,14 @@ def init_db():
             id TEXT PRIMARY KEY,
             title TEXT NOT NULL,
             body TEXT,
+            body_full TEXT,
             url TEXT,
             permalink TEXT,
             subreddit TEXT,
             score INTEGER,
             num_comments INTEGER,
             thumbnail TEXT,
+            media_json TEXT,     -- JSON dict describing post media
             emotions_json TEXT,  -- JSON dict of emotion -> prob
             first_seen REAL
         )
@@ -52,6 +54,16 @@ def init_db():
         )
     """)
     cur.execute("CREATE INDEX IF NOT EXISTS idx_feedback_label ON feedback(label)")
+
+    # Migration: add columns to pre-existing DBs that were created before these
+    # fields existed. SQLite has no "ADD COLUMN IF NOT EXISTS", so we check first.
+    cur.execute("PRAGMA table_info(posts)")
+    existing_cols = {row["name"] for row in cur.fetchall()}
+    if "media_json" not in existing_cols:
+        cur.execute("ALTER TABLE posts ADD COLUMN media_json TEXT")
+    if "body_full" not in existing_cols:
+        cur.execute("ALTER TABLE posts ADD COLUMN body_full TEXT")
+
     conn.commit()
     conn.close()
 
@@ -65,25 +77,30 @@ def save_post(post):
     cur = conn.cursor()
 
     emotions = post.get("emotions") or post.get("base_emotions") or {}
+    media = post.get("media") or {"type": "none"}
 
     cur.execute("""
-        INSERT INTO posts (id, title, body, url, permalink, subreddit, score,
-                           num_comments, thumbnail, emotions_json, first_seen)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO posts (id, title, body, body_full, url, permalink, subreddit,
+                           score, num_comments, thumbnail, media_json, emotions_json, first_seen)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT(id) DO UPDATE SET
             score = excluded.score,
             num_comments = excluded.num_comments,
-            emotions_json = excluded.emotions_json
+            emotions_json = excluded.emotions_json,
+            media_json = excluded.media_json,
+            body_full = excluded.body_full
     """, (
         post["id"],
         post["title"],
         post.get("body", ""),
+        post.get("body_full", post.get("body", "")),
         post.get("url"),
         post.get("permalink"),
         post.get("subreddit"),
         post.get("score", 0),
         post.get("num_comments", 0),
         post.get("thumbnail"),
+        json.dumps(media),
         json.dumps(emotions),
         time.time(),
     ))
@@ -150,6 +167,21 @@ def get_labeled_posts():
     return rows
 
 
+def clear_feedback(wipe_posts=False):
+    """
+    Delete all feedback labels. If wipe_posts is True, also clear the post pool
+    (so you start completely fresh). Otherwise posts stay cached and become
+    available to label again.
+    """
+    conn = _connect()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM feedback")
+    if wipe_posts:
+        cur.execute("DELETE FROM posts")
+    conn.commit()
+    conn.close()
+
+
 def get_stats():
     """Return label counts and total post pool size."""
     conn = _connect()
@@ -175,15 +207,26 @@ def _row_to_post(row):
         emotions = json.loads(row["emotions_json"]) if row["emotions_json"] else {}
     except (json.JSONDecodeError, TypeError):
         emotions = {}
+    # media_json / body_full may be absent on very old rows — guard with try/except.
+    try:
+        media = json.loads(row["media_json"]) if row["media_json"] else {"type": "none"}
+    except (json.JSONDecodeError, TypeError, IndexError):
+        media = {"type": "none"}
+    try:
+        body_full = row["body_full"] or ""
+    except (IndexError, KeyError):
+        body_full = ""
     return {
         "id": row["id"],
         "title": row["title"],
         "body": row["body"] or "",
+        "body_full": body_full,
         "url": row["url"],
         "permalink": row["permalink"],
         "subreddit": row["subreddit"],
         "score": row["score"],
         "num_comments": row["num_comments"],
         "thumbnail": row["thumbnail"],
+        "media": media,
         "emotions": emotions,
     }

@@ -19,172 +19,147 @@
 
     header {
       width: 100%;
-      max-width: 600px;
+      max-width: 640px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
     }
 
     h1 { font-size: 18px; color: #ff4500; }
 
-    .stats {
-      font-size: 13px;
-      color: #8b949e;
-      display: flex;
-      gap: 16px;
-    }
+    .header-right { display: flex; align-items: center; gap: 16px; }
 
+    .stats { font-size: 13px; color: #8b949e; display: flex; gap: 14px; }
     .stats span b { color: #e6edf3; }
+
+    .clear-btn {
+      font-size: 11px;
+      color: #f85149;
+      background: transparent;
+      border: 1px solid #f85149;
+      border-radius: 6px;
+      padding: 4px 10px;
+      cursor: pointer;
+    }
+    .clear-btn:hover { background: #f8514922; }
 
     .card-stack {
       position: relative;
       width: 100%;
-      max-width: 600px;
-      min-height: 400px;
+      max-width: 640px;
       display: flex;
       justify-content: center;
-      align-items: center;
     }
 
     .card {
       width: 100%;
-      max-width: 560px;
       background: #161b22;
       border: 1px solid #30363d;
       border-radius: 12px;
       padding: 24px;
-      transition: transform 0.3s, opacity 0.3s;
+      transition: transform 0.25s, opacity 0.25s;
     }
 
-    .card.swiping-up {
-      transform: translateX(120%) rotate(15deg);
-      opacity: 0;
-    }
+    .card.swiping-up { transform: translateX(120%) rotate(12deg); opacity: 0; }
+    .card.swiping-down { transform: translateX(-120%) rotate(-12deg); opacity: 0; }
 
-    .card.swiping-down {
-      transform: translateX(-120%) rotate(-15deg);
-      opacity: 0;
-    }
-
-    .card-subreddit {
-      font-size: 12px;
-      color: #58a6ff;
-      margin-bottom: 8px;
-    }
-
-    .card-title {
-      font-size: 20px;
-      font-weight: 600;
-      line-height: 1.3;
-      margin-bottom: 12px;
-    }
-
+    .card-subreddit { font-size: 12px; color: #58a6ff; margin-bottom: 8px; }
+    .card-title { font-size: 20px; font-weight: 600; line-height: 1.3; margin-bottom: 12px; }
     .card-body {
-      font-size: 14px;
-      color: #c9d1d9;
-      line-height: 1.5;
+      font-size: 14px; color: #c9d1d9; line-height: 1.5; margin-bottom: 16px;
+      max-height: 160px; overflow-y: auto;
+      white-space: pre-wrap;
+    }
+
+    .card-image {
+      width: 100%;
+      max-height: 320px;
+      object-fit: contain;
+      border-radius: 8px;
       margin-bottom: 16px;
-      max-height: 200px;
-      overflow-y: auto;
+      background: #0d1117;
     }
 
-    .card-emotions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
+    .gallery { display: flex; flex-direction: column; gap: 8px; }
+    .gallery-img { max-height: 280px; }
+
+    .media-link {
+      display: block;
+      font-size: 13px;
+      color: #58a6ff;
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      padding: 10px 12px;
       margin-bottom: 16px;
+      text-decoration: none;
+      word-break: break-all;
     }
+    .media-link:hover { border-color: #58a6ff; }
 
-    .emotion-chip {
-      font-size: 11px;
-      padding: 3px 8px;
-      border-radius: 12px;
-      background: #21262d;
-      color: #8b949e;
-    }
-
+    .card-emotions { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+    .emotion-chip { font-size: 11px; padding: 3px 8px; border-radius: 12px; background: #21262d; color: #8b949e; }
     .emotion-chip.strong { background: #ff450022; color: #ff4500; }
 
     .card-stats {
-      font-size: 12px;
-      color: #6e7681;
-      display: flex;
-      gap: 16px;
-      padding-top: 12px;
-      border-top: 1px solid #21262d;
+      font-size: 12px; color: #6e7681; display: flex; gap: 16px;
+      padding: 12px 0; border-top: 1px solid #21262d; border-bottom: 1px solid #21262d;
+      margin-bottom: 12px;
     }
-
-    .card-link {
-      font-size: 12px;
-      color: #58a6ff;
-      text-decoration: none;
-      margin-left: auto;
-    }
-
+    .card-link { color: #58a6ff; text-decoration: none; margin-left: auto; }
     .card-link:hover { text-decoration: underline; }
 
-    .actions {
-      margin-top: 24px;
-      display: flex;
-      gap: 24px;
-      justify-content: center;
+    .comments-header {
+      font-size: 13px; color: #8b949e; margin-bottom: 10px;
+      display: flex; align-items: center; gap: 8px;
     }
+    .comments {
+      max-height: 240px; overflow-y: auto;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .comment {
+      font-size: 13px; line-height: 1.45; color: #c9d1d9;
+      padding: 8px 12px; background: #0d1117; border-radius: 8px;
+      border-left: 2px solid #30363d;
+      white-space: pre-wrap;
+    }
+    .comment-meta { font-size: 11px; color: #6e7681; margin-bottom: 3px; }
+    .comments-loading { font-size: 12px; color: #6e7681; font-style: italic; }
+    .no-comments { font-size: 12px; color: #6e7681; font-style: italic; }
 
+    .actions { margin-top: 24px; display: flex; gap: 24px; justify-content: center; }
     .action-btn {
-      width: 70px;
-      height: 70px;
-      border-radius: 50%;
-      border: 2px solid;
-      background: transparent;
-      cursor: pointer;
-      font-size: 28px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      width: 70px; height: 70px; border-radius: 50%; border: 2px solid;
+      background: transparent; cursor: pointer; font-size: 28px;
+      display: flex; align-items: center; justify-content: center;
       transition: transform 0.15s, background 0.15s;
     }
-
     .action-btn:hover { transform: scale(1.1); }
     .action-btn:active { transform: scale(0.95); }
-
     .action-btn.down { border-color: #f85149; color: #f85149; }
     .action-btn.down:hover { background: #f8514922; }
-
     .action-btn.up { border-color: #3fb950; color: #3fb950; }
     .action-btn.up:hover { background: #3fb95022; }
 
-    .hint {
-      margin-top: 16px;
-      font-size: 11px;
-      color: #6e7681;
-      text-align: center;
-    }
-
-    .empty {
-      text-align: center;
-      padding: 60px 20px;
-      color: #8b949e;
-    }
-
+    .hint { margin-top: 16px; font-size: 11px; color: #6e7681; text-align: center; }
+    .empty { text-align: center; padding: 60px 20px; color: #8b949e; }
     .empty button {
-      margin-top: 16px;
-      padding: 8px 16px;
-      background: #ff4500;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
+      margin-top: 16px; padding: 8px 16px; background: #ff4500;
+      color: white; border: none; border-radius: 6px; cursor: pointer;
     }
   </style>
 </head>
 <body>
   <header>
     <h1>🎯 Train Your Recommender</h1>
-    <div class="stats" id="stats">
-      <span>👍 <b id="upCount">0</b></span>
-      <span>👎 <b id="downCount">0</b></span>
-      <span><b id="totalCount">0</b> total</span>
+    <div class="header-right">
+      <div class="stats" id="stats">
+        <span>👍 <b id="upCount">0</b></span>
+        <span>👎 <b id="downCount">0</b></span>
+        <span><b id="totalCount">0</b> total</span>
+      </div>
+      <button class="clear-btn" id="clearBtn">Clear all</button>
     </div>
   </header>
 
@@ -197,9 +172,7 @@
     <button class="action-btn up" id="upBtn" title="Show me more like this">👍</button>
   </div>
 
-  <div class="hint">
-    Use ← / → arrow keys, or click the buttons.
-  </div>
+  <div class="hint">← / → arrow keys, or click the buttons. Comments load automatically.</div>
 
   <script src="train.js"></script>
 </body>
