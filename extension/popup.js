@@ -6,14 +6,17 @@ const subredditInput = document.getElementById("subredditInput");
 const sortSelect = document.getElementById("sortSelect");
 const statusEl = document.getElementById("status");
 const resultsEl = document.getElementById("results");
+const trainLink = document.getElementById("trainLink");
 
 const MOOD_EMOJI = {
-  angry: "😤",
-  sad: "😢",
-  happy: "😊",
-  outraged: "🤬",
-  amused: "😂",
+  angry: "😤", sad: "😢", happy: "😊", outraged: "🤬", amused: "😂",
 };
+
+trainLink.addEventListener("click", (e) => {
+  e.preventDefault();
+  // Open the training screen in a new tab — the popup is too cramped for swiping.
+  chrome.tabs.create({ url: chrome.runtime.getURL("train.html") });
+});
 
 fetchBtn.addEventListener("click", async () => {
   const mood = moodSelect.value;
@@ -57,7 +60,7 @@ function renderResults(posts, mood) {
   resultsEl.innerHTML = posts.map((post) => `
     <a class="post-card" href="${post.url}" target="_blank" rel="noopener noreferrer">
       <div class="post-meta">
-        <span>r/${post.subreddit}</span>
+        <span>r/${escapeHtml(post.subreddit)}</span>
         <span class="mood-badge">${MOOD_EMOJI[mood] || ""} ${(post.mood_score * 100).toFixed(0)}% match</span>
       </div>
       <div class="post-title">${escapeHtml(post.title)}</div>
@@ -70,7 +73,7 @@ function renderResults(posts, mood) {
 }
 
 function escapeHtml(str) {
-  return str
+  return String(str)
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")

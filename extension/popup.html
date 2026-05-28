@@ -20,6 +20,7 @@
       border-bottom: 1px solid #30363d;
       display: flex;
       align-items: center;
+      justify-content: space-between;
       gap: 10px;
     }
 
@@ -28,6 +29,15 @@
       font-weight: 600;
       color: #ff4500;
     }
+
+    .train-link {
+      font-size: 11px;
+      color: #58a6ff;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .train-link:hover { text-decoration: underline; }
 
     .controls {
       padding: 14px 16px;
@@ -38,11 +48,7 @@
       border-bottom: 1px solid #30363d;
     }
 
-    .row {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
+    .row { display: flex; gap: 8px; align-items: center; }
 
     label {
       font-size: 12px;
@@ -62,9 +68,7 @@
       outline: none;
     }
 
-    select:focus, input:focus {
-      border-color: #ff4500;
-    }
+    select:focus, input:focus { border-color: #ff4500; }
 
     button#fetchBtn {
       width: 100%;
@@ -89,10 +93,7 @@
       padding: 10px;
     }
 
-    #results {
-      max-height: 420px;
-      overflow-y: auto;
-    }
+    #results { max-height: 420px; overflow-y: auto; }
 
     .post-card {
       display: block;
@@ -113,11 +114,7 @@
       gap: 8px;
     }
 
-    .post-title {
-      font-size: 13px;
-      line-height: 1.4;
-      color: #e6edf3;
-    }
+    .post-title { font-size: 13px; line-height: 1.4; color: #e6edf3; }
 
     .mood-badge {
       font-size: 10px;
@@ -139,8 +136,11 @@
 </head>
 <body>
   <header>
-    <span>🔥</span>
-    <h1>Reddit Mood Recommender</h1>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <span>🔥</span>
+      <h1>Reddit Mood Recommender</h1>
+    </div>
+    <a class="train-link" id="trainLink">🎯 Train</a>
   </header>
 
   <div class="controls">

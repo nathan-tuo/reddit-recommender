@@ -1,13 +1,19 @@
 {
   "manifest_version": 3,
   "name": "Reddit Mood Recommender",
-  "version": "0.1.0",
-  "description": "Get Reddit posts matched to your current mood.",
-  "permissions": ["activeTab"],
+  "version": "0.2.0",
+  "description": "Get Reddit posts matched to your current mood, with a personalized recommender you train yourself.",
+  "permissions": ["activeTab", "tabs"],
   "action": {
     "default_popup": "popup.html"
   },
   "host_permissions": [
     "http://localhost:5000/*"
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["train.html", "train.js"],
+      "matches": ["<all_urls>"]
+    }
   ]
 }
