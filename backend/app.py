@@ -127,7 +127,7 @@ def debug_media():
     """
     Diagnostic: fetch a few live posts and show what media we extract vs.
     what raw fields Reddit actually returned. Visit in browser:
-    http://localhost:5000/debug-media?subreddit=aww
+    http://localhost:5001/debug-media?subreddit=aww
     """
     import requests as _rq
     sub = request.args.get("subreddit", "aww")
@@ -161,5 +161,5 @@ if __name__ == "__main__":
     feedback_store.init_db()
     print("Warming up the emotion model...")
     get_classifier()
-    print("Ready. Starting server on http://localhost:5000")
-    app.run(debug=True, port=5000)
+    print("Ready. Starting server on http://localhost:5001")
+    app.run(debug=True, port=5001)

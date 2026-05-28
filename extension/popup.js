@@ -1,4 +1,4 @@
-const API_BASE = "http://localhost:5000";
+const API_BASE = "http://localhost:5001";
 
 const fetchBtn = document.getElementById("fetchBtn");
 const moodSelect = document.getElementById("moodSelect");

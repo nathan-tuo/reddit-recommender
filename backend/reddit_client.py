@@ -1,12 +1,44 @@
 import time
 import html
 import requests
+from urllib.parse import urlparse, parse_qs, unquote
 
 HEADERS = {
     # Reddit increasingly 403s generic library UAs. A descriptive UA in their
     # recommended format is far more reliable for unauthenticated access.
     "User-Agent": "windows:mood-recommender:v0.2 (by /u/your_username)"
 }
+
+IMAGE_EXTS = (".jpg", ".jpeg", ".png", ".gif", ".webp")
+
+
+def _unwrap_media_url(url):
+    """
+    Reddit sometimes gives a wrapper URL like:
+        https://www.reddit.com/media?url=https%3A%2F%2Fpreview.redd.it%2F....jpeg%3F...
+    The real image is URL-encoded in the `url=` query param. Unwrap it.
+    Returns the decoded inner URL, or the original if it's not a wrapper.
+    """
+    if not url:
+        return url
+    try:
+        parsed = urlparse(url)
+        if parsed.netloc.endswith("reddit.com") and parsed.path == "/media":
+            qs = parse_qs(parsed.query)
+            inner = qs.get("url", [None])[0]
+            if inner:
+                return html.unescape(unquote(inner))
+    except (ValueError, KeyError):
+        pass
+    return url
+
+
+def _is_image_url(url):
+    """True if the URL path (ignoring query string) ends in an image extension."""
+    if not url:
+        return False
+    path = urlparse(url).path.lower()
+    return path.endswith(IMAGE_EXTS)
 
 # Simple in-memory TTL cache for post listings.
 # Key: (subreddit, sort, limit) -> (timestamp, posts)
@@ -48,9 +80,11 @@ def _extract_media(p):
         if images:
             return {"type": "gallery", "images": images}
 
-    # 3. Direct image URL.
-    url = p.get("url_overridden_by_dest") or p.get("url", "")
-    if url and url.lower().split("?")[0].endswith((".jpg", ".jpeg", ".png", ".gif", ".webp")):
+    # 3. Direct or wrapped image URL.
+    # Unwrap reddit.com/media?url=... wrappers first, then check the real target.
+    raw_url = p.get("url_overridden_by_dest") or p.get("url", "")
+    url = _unwrap_media_url(raw_url)
+    if _is_image_url(url):
         return {"type": "image", "image_url": html.unescape(url)}
 
     # 4. Reddit preview image (covers a lot of image posts that don't have a direct URL).
@@ -59,6 +93,7 @@ def _extract_media(p):
         return {"type": "image", "image_url": preview_img}
 
     # 5. External link (youtube, imgur page, article, etc.).
+    # Use the unwrapped url so we don't show an ugly reddit.com/media link.
     if url and not url.startswith(f"https://www.reddit.com{p.get('permalink', '')}"):
         return {"type": "link", "link_url": url}
 
@@ -162,11 +197,79 @@ def fetch_top_comments_detailed(permalink, limit=10):
 # A curated spread of subreddits across emotional registers, for diverse training data.
 # We rotate through these so you're not labeling 100 variations of today's r/all front page.
 DIVERSE_SUBREDDITS = [
+    # --- Original 20 ---
     "AskReddit", "aww", "news", "politics", "funny",
     "mildlyinfuriating", "MadeMeSmile", "nottheonion", "tifu", "wholesomememes",
     "rage", "UpliftingNews", "TrueOffMyChest", "facepalm", "HumansBeingBros",
     "WTF", "LifeProTips", "Damnthatsinteresting", "interestingasfuck", "PublicFreakout",
+
+    # --- Wholesome / Feel‑Good ---
+    "CasualConversation", "AnimalsBeingBros", "AnimalsBeingJerks", "Eyebleach",
+    "HappyCrowds", "KindVoice", "CalmingVideos", "BeforeNAfterAdoption",
+    "RarePuppers", "Catswhoyell", "Dogtraining",
+
+    # --- Humor / Chaos / Memes ---
+    "memes", "dankmemes", "PrequelMemes", "HolUp", "ComedyCemetery",
+    "BoneAppleTea", "me_irl", "2meirl4meirl", "starterpacks", "AbruptChaos",
+    "Unexpected", "therewasanattempt", "ihadastroke", "dontputyourdickinthat",
+
+    # --- Emotional / Venting / Personal ---
+    "OffMyChest", "relationship_advice", "AmItheAsshole", "dating_advice",
+    "BreakUps", "Survivors", "DecidingToBeBetter", "mentalhealth",
+    "Anxiety", "depression", "socialskills", "lonely", "selfimprovement",
+
+    # --- News / World / Society ---
+    "worldnews", "technology", "science", "Futurology", "Economics",
+    "DataIsBeautiful", "MapPorn", "TodayILearned", "explainlikeimfive",
+    "changemyview", "NeutralPolitics", "AskHistorians", "AskEconomics",
+
+    # --- Interesting / Educational ---
+    "coolguides", "educationalgifs", "space", "physics", "math",
+    "AskScience", "AskEngineers", "EngineeringPorn", "MachineLearning",
+    "computerscience", "programming", "learnpython", "learnmachinelearning",
+    "YouShouldKnow", "HowTo", "DIY", "whatsthisthing",
+
+    # --- Art / Creativity / Aesthetic ---
+    "Art", "Drawing", "Design", "ImaginaryLandscapes", "ImaginaryCharacters",
+    "PixelArt", "Graffiti", "Calligraphy", "ArchitecturePorn", "CozyPlaces",
+    "RoomPorn", "EarthPorn", "CityPorn", "FoodPorn",
+
+    # --- Gaming / Tech ---
+    "gaming", "pcmasterrace", "buildapc", "Steam", "NintendoSwitch",
+    "PlayStation", "xbox", "VALORANT", "leagueoflegends", "Minecraft",
+    "Overwatch", "GTA6", "cyberpunkgame", "virtualreality",
+
+    # --- Sports / Competition ---
+    "sports", "nba", "nfl", "soccer", "formula1",
+    "MMA", "boxing", "running", "climbing", "weightlifting",
+
+    # --- Lifestyle / Hobbies ---
+    "travel", "frugal", "cooking", "baking", "fitness",
+    "bodyweightfitness", "nutrition", "gardening", "camping", "Outdoors",
+    "photography", "music", "movies", "books", "writing",
+    "journaling", "tea", "coffee", "cars", "motorcycles",
+
+    # --- Weird / Dark / High‑Intensity ---
+    "creepy", "nosleep", "LetsNotMeet", "UnresolvedMysteries",
+    "TrueCrime", "MorbidReality", "Glitch_in_the_Matrix",
+    "oddlyterrifying", "BeAmazed", "CatastrophicFailure",
+
+    # --- Niche / Internet Culture ---
+    "InternetIsBeautiful", "TikTokCringe", "Cringetopia",
+    "OutOfTheLoop", "FanTheories", "Showerthoughts",
+    "UnpopularOpinion", "confession", "PettyRevenge",
+    "MaliciousCompliance", "ProRevenge",
+
+    # --- Calm / Slow‑Paced / Cozy ---
+    "ZenHabits", "Meditation", "Stoicism", "slowcooking",
+    "cozy", "minimalism", "simpleliving", "GetDisciplined",
+
+    # --- Wildcards / High‑Variety ---
+    "oddlysatisfying", "nextfuckinglevel", "BeAmazed",
+    "NatureIsFuckingLit", "Whatcouldgowrong", "ThatsInsane",
+    "UnexpectedlyWholesome", "HumansAreMetal", "AnimalsAreMetal",
 ]
+
 
 
 def fetch_diverse_posts(per_sub=10, sorts=("hot", "new", "top")):
